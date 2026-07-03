@@ -529,8 +529,9 @@ const DB = {
 // ═══════════════════════════════════════════════════════
 const GS = {
   KEY_URL:'pm_gs_url',
+  DEFAULT_URL:'https://script.google.com/macros/s/AKfycbwU27g4V8ZIiwe20YApNjIrIcdHGpGpohsBgenvFIGITud30UjZMEp6obwNrjkZ94y8/exec',
   KEY_SENT:'pm_gs_last_sent',
-  getUrl(){return localStorage.getItem(this.KEY_URL)||'';},
+  getUrl(){return localStorage.getItem(this.KEY_URL)||this.DEFAULT_URL;},
   setUrl(url){localStorage.setItem(this.KEY_URL,url.trim());},
   isOn(){return !!this.getUrl();},
   getLastSent(){return localStorage.getItem(this.KEY_SENT+'_'+(currentUser?.id||''))||'';},
@@ -610,7 +611,7 @@ async function enviarAlCoordinador(){
   // Mostrar modal de confirmación
   const m=document.createElement('div');
   m.id='send-confirm-modal';
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';m.setAttribute('data-pm-overlay','1');
   const tests=history.filter(h=>h.type==='test'&&h.score!=null);
   const avg=tests.length?Math.round(tests.reduce((a,t)=>a+t.score,0)/tests.length):0;
   const last=GS.getLastSent();
@@ -649,7 +650,7 @@ async function confirmarEnvio(){
     actualizarBadgeEnvio();
     // Modal de éxito
     const m=document.createElement('div');
-    m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';m.setAttribute('data-pm-overlay','1');
     m.innerHTML=`<div style="background:white;border-radius:20px;padding:32px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.35)">
       <div style="font-size:3.5rem;margin-bottom:12px">✅</div>
       <div style="font-size:1.05rem;font-weight:800;margin-bottom:8px">¡Resultados enviados!</div>
@@ -1116,18 +1117,19 @@ function renderHelpPage(){
 // ═══════════════════════════════════════════════════════
 const TEST_CATEGORIES=[
   {id:'verbal',name:'Razonamiento Verbal',icon:'📝',desc:'Analogías, sinónimos y comprensión',color:'#dbeafe',badge:'15 preguntas',timeLimit:600,type:'quiz'},
-  {id:'numerical',name:'Razonamiento Numérico',icon:'🔢',desc:'Series y operaciones matemáticas',color:'#d1fae5',badge:'15 preguntas',timeLimit:720,type:'quiz'},
+  {id:'numerical',name:'Razonamiento Numérico',icon:'🔢',desc:'Series, operaciones matemáticas y escenarios empresariales',color:'#d1fae5',badge:'25 preguntas',timeLimit:720,type:'quiz'},
   {id:'logical',name:'Razonamiento Lógico',icon:'🔍',desc:'Deducción y lógica abstracta',color:'#fef3c7',badge:'12 preguntas',timeLimit:600,type:'quiz'},
   {id:'spatial',name:'Razonamiento Espacial',icon:'🔷',desc:'Figuras y transformaciones',color:'#fce7f3',badge:'10 preguntas',timeLimit:480,type:'quiz'},
   {id:'attention',name:'Atención y Concentración',icon:'🎯',desc:'Velocidad y precisión mental',color:'#f3e8ff',badge:'12 preguntas',timeLimit:480,type:'quiz'},
-  {id:'programming',name:'Programación y Lógica',icon:'💻',desc:'Algoritmos y pensamiento computacional',color:'#ecfdf5',badge:'15 preguntas',timeLimit:900,type:'quiz'},
-  {id:'personality',name:'Competencias Laborales',icon:'🌟',desc:'Rasgos y valores profesionales',color:'#fff7ed',badge:'15 preguntas',timeLimit:720,type:'quiz'},
+  {id:'programming',name:'Programación y Lógica',icon:'💻',desc:'Algoritmos, código y escenarios reales de desarrollo',color:'#ecfdf5',badge:'28 preguntas',timeLimit:900,type:'quiz'},
+  {id:'personality',name:'Competencias Laborales',icon:'🌟',desc:'Rasgos, valores y escenarios de trabajo real',color:'#fff7ed',badge:'25 preguntas',timeLimit:720,type:'quiz'},
   // ── NUEVAS PRUEBAS TIPO CLÍNICO (con disclaimer) ──
   {id:'wonderlic',name:'Tipo Wonderlic / BARSIT',icon:'⚡',desc:'30 preguntas mixtas en 12 min — presión real',color:'#fef9c3',badge:'30 preguntas',timeLimit:720,type:'quiz',questionCount:30},
   {id:'zavic',name:'Zavic — Perfil de Valores',icon:'⚖️',desc:'Dilemas éticos — conoce tu perfil valórico',color:'#d1fae5',badge:'20 escenarios',timeLimit:0,type:'zavic'},
   {id:'pf16',name:'Perfil de Personalidad Laboral',icon:'🧠',desc:'Tipo 16PF — 6 dimensiones con gráfico',color:'#ede9fe',badge:'48 preguntas',timeLimit:0,type:'pf16'},
   {id:'wartegg',name:'Wartegg — Reflexión Proyectiva',icon:'🎨',desc:'8 campos visuales — explora tu mundo interno',color:'#fce7f3',badge:'8 campos',timeLimit:0,type:'wartegg'},
-  {id:'teamwork',name:'Simulador de Trabajo en Equipo',icon:'🤝',desc:'16 situaciones reales — perfil de estilo colaborativo',color:'#f5f3ff',badge:'16 situaciones',timeLimit:0,type:'teamwork'}
+  {id:'teamwork',name:'Simulador de Trabajo en Equipo',icon:'🤝',desc:'16 situaciones reales — perfil de estilo colaborativo',color:'#f5f3ff',badge:'16 situaciones',timeLimit:0,type:'teamwork'},
+  {id:'automation',name:'Automatización e IA',icon:'🤖',desc:'OCR, RPA, bots y arquitectura — Assessment Center real (20 min)',color:'#e0f2fe',badge:'45 preguntas',timeLimit:1200,type:'quiz'}
 ];
 
 const QUESTIONS={
@@ -1163,7 +1165,38 @@ const QUESTIONS={
     {q:'0.25 × 0.4 =',opts:['0.01','0.1','0.001','1'],ans:1,exp:'0.25×0.4=0.1.'},
     {q:'40 personas, 60% mujeres. ¿Cuántos hombres?',opts:['14','16','18','20'],ans:1,exp:'40×0.4=16.'},
     {q:'MCM de 4, 6 y 8:',opts:['16','18','24','32'],ans:2,exp:'MCM(4,6,8)=24.'},
-    {q:'Serie: 3, 7, 15, 31, ___',opts:['55','61','63','67'],ans:2,exp:'×2+1: 31×2+1=63.'}
+    {q:'Serie: 3, 7, 15, 31, ___',opts:['55','61','63','67'],ans:2,exp:'×2+1: 31×2+1=63.'},
+    // ── ESCENARIOS EMPRESARIALES ──
+    {q:'Un producto costaba $180.000. Lo aumentaron un 15% y luego lo rebajaron un 15%. ¿Cuál es el precio final?',
+     opts:['$180.000 — vuelve al precio original','$175.950','$182.700','$177.300'],
+     ans:1,exp:'Subida: 180.000×1.15=207.000. Bajada: 207.000×0.85=175.950. Un +15% y luego -15% NO da el precio original — el porcentaje se aplica sobre bases diferentes.'},
+    {q:'Una empresa tiene ingresos de $50 millones y costos de $35 millones. ¿Cuál es su margen de utilidad bruto?',
+     opts:['15%','30%','35%','70%'],
+     ans:1,exp:'Margen bruto = (Ingresos - Costos) / Ingresos × 100 = (50-35)/50 × 100 = 30%. El margen mide qué porcentaje de los ingresos queda después de costos directos.'},
+    {q:'Un proyecto requiere una inversión de $20 millones y genera $28 millones al cabo de 2 años. ¿Cuál es el ROI?',
+     opts:['8%','40%','140%','28%'],
+     ans:1,exp:'ROI = (Beneficio neto / Inversión) × 100 = (28-20)/20 × 100 = 40%. El ROI mide el retorno porcentual sobre la inversión inicial, sin considerar el tiempo.'},
+    {q:'Un equipo de 6 personas puede completar un proyecto en 10 días. ¿En cuántos días lo completarían 4 personas al mismo ritmo?',
+     opts:['6,7 días','12 días','15 días','8 días'],
+     ans:2,exp:'Total trabajo = 6×10=60 persona-días. Con 4 personas: 60/4=15 días. Regla de tres inversa: más personas → menos días.'},
+    {q:'Las ventas de enero fueron $8 millones, febrero $9,2 millones, marzo $7,8 millones. ¿Cuál es el promedio mensual?',
+     opts:['$8,2 millones','$8,33 millones','$9 millones','$7,9 millones'],
+     ans:1,exp:'Promedio = (8+9,2+7,8)/3 = 25/3 = 8,33 millones. El promedio aritmético divide la suma total entre el número de periodos.'},
+    {q:'Si el error en un proceso aumenta del 2% al 3%, ¿cuánto aumentó el error en términos relativos?',
+     opts:['1%','25%','50%','33,3%'],
+     ans:2,exp:'Aumento relativo = (3-2)/2 × 100 = 50%. No confundir: el aumento absoluto es 1 punto porcentual, pero el aumento relativo (con respecto al valor inicial del 2%) es 50%.'},
+    {q:'Una empresa quiere reducir sus costos operativos en un 12%. Si actualmente son $45 millones, ¿a cuánto deben llegar?',
+     opts:['$39,4 millones','$38,8 millones','$39,6 millones','$40,2 millones'],
+     ans:2,exp:'45 × (1 - 0.12) = 45 × 0.88 = 39,6 millones. Para calcular el valor después de una reducción porcentual: multiplica por (1 - porcentaje/100).'},
+    {q:'Un informe muestra que el 68% de los clientes son mujeres. Si hay 450 clientes totales, ¿cuántos son hombres?',
+     opts:['144','148','150','156'],
+     ans:0,exp:'Hombres = 450 × (1 - 0.68) = 450 × 0.32 = 144. Primero calcula el porcentaje de hombres (100%-68%=32%), luego aplícalo al total.'},
+    {q:'Un dato muestra tasas de error de: 1,2% - 1,5% - 1,1% - 0,9% - 1,3%. ¿Cuál es la mediana?',
+     opts:['1,1%','1,2%','1,3%','1,5%'],
+     ans:1,exp:'Ordenados: 0,9 - 1,1 - 1,2 - 1,3 - 1,5. La mediana es el valor central (posición 3 de 5) = 1,2%. A diferencia del promedio, la mediana no se afecta por valores extremos.'},
+    {q:'Una empresa facturó $120 millones en 2024 y proyecta un crecimiento del 8% anual. ¿Cuánto facturará en 2026?',
+     opts:['$139,2 millones','$140,0 millones','$139,9 millones','$141,7 millones'],
+     ans:0,exp:'2025: 120×1.08=129,6. 2026: 129,6×1.08=139,97≈140 millones. Con crecimiento compuesto: valor × (1+tasa)^años. Nota: 139,97 es más preciso; 140 es la aproximación estándar en contexto empresarial.'}
   ],
   logical:[
     {q:'Todos los perros son animales. Rex es perro. Por lo tanto:',opts:['Rex es un animal','Todos los animales son perros','Algunos animales son Rex','Rex no es animal'],ans:0,exp:'Silogismo: si todo A es B y X es A → X es B.'},
@@ -1229,7 +1262,38 @@ const QUESTIONS={
     {q:'¿Qué es un LLM (Large Language Model) como ChatGPT o Claude?',opts:['Un lenguaje de programación nuevo','Un modelo entrenado con grandes cantidades de texto para generar lenguaje natural','Una base de datos muy grande','Un sistema operativo de IA'],ans:1,exp:'LLM = modelo de lenguaje grande, entrenado con texto para predecir y generar lenguaje. En 2026 casi TODAS las entrevistas tech incluyen al menos una pregunta sobre IA.'},
     {q:'En el contexto de IA, ¿qué significa "alucinación"?',opts:['Cuando la IA procesa imágenes','Cuando la IA genera información falsa pero presentada con confianza','Cuando la IA tarda demasiado','Cuando la IA se detiene sin responder'],ans:1,exp:'Alucinación: el modelo genera texto incorrecto o inventado con aparente confianza. Conocer limitaciones de la IA es habilidad crítica en 2026.'},
     {q:'¿Cuál es la diferencia entre SQL y NoSQL?',opts:['SQL es más nuevo','SQL usa tablas relacionales; NoSQL usa estructuras flexibles como documentos o grafos','NoSQL solo sirve para big data','SQL no permite consultas complejas'],ans:1,exp:'SQL (MySQL, PostgreSQL): relacional, tablas y esquema fijo. NoSQL (MongoDB, Redis): flexible, escalable. Pregunta estándar en entrevistas backend y data.'},
-    {q:'En Git, ¿qué hace el comando "git merge"?',opts:['Borra una rama','Combina los cambios de una rama en otra','Crea una copia del repositorio','Revierte el último commit'],ans:1,exp:'git merge une los commits de una rama en otra. Es operación fundamental en trabajo colaborativo — preguntado en el 90% de entrevistas de desarrollo.'}
+    {q:'En Git, ¿qué hace el comando "git merge"?',opts:['Borra una rama','Combina los cambios de una rama en otra','Crea una copia del repositorio','Revierte el último commit'],ans:1,exp:'git merge une los commits de una rama en otra. Es operación fundamental en trabajo colaborativo — preguntado en el 90% de entrevistas de desarrollo.'},
+    // ── ESCENARIOS REALES (sesión 2) ──
+    {q:'Tu código en producción genera un error "NullPointerException" en el 3% de las transacciones. ¿Cuál es el primer paso para resolverlo?',
+     opts:['Reiniciar el servidor cada vez que aparece el error','Revisar el stack trace en los logs para identificar exactamente la línea y el objeto null, luego agregar validación antes de ese punto','Ignorarlo — el 97% funciona bien','Reescribir todo el módulo desde cero'],
+     ans:1,exp:'El stack trace es el mapa al error: indica archivo, línea y llamada exacta donde ocurrió. La solución es: leer el trace → identificar el objeto null → agregar validación (if objeto != null) o manejar la excepción correctamente.'},
+    {q:'Recibes un pull request de un compañero con 500 líneas de código y un solo commit "arreglos". Como revisor, ¿qué le pides?',
+     opts:['Aprobarlo directamente — confías en el compañero','Rechazarlo y pedir que divida en commits atómicos descriptivos (cada commit = un cambio lógico) para poder revisar el historial limpiamente','Hacer merge sin revisar porque es urgente','Reescribirlo tú mismo para que quede mejor'],
+     ans:1,exp:'Los commits atómicos ("fix: validar email antes de guardar") permiten entender la intención de cada cambio, hacer bisect para encontrar bugs y revertir solo lo necesario. Un commit "arreglos" con 500 líneas es una señal de mala práctica.'},
+    {q:'Tu función tarda 8 segundos en procesar una lista de 10.000 elementos con un loop for. ¿Cuál es la técnica de optimización más impactante en Python?',
+     opts:['Cambiar los nombres de las variables a nombres más cortos','Usar comprensión de listas o operaciones vectorizadas con numpy/pandas en lugar de loops explícitos','Agregar más comentarios al código','Dividir el archivo en dos módulos separados'],
+     ans:1,exp:'Las operaciones vectorizadas (numpy, pandas) aplican operaciones a arrays completos sin loops Python, usando C internamente — pueden ser 10-100x más rápidas. Las comprensiones de listas también son más eficientes que los for loops tradicionales.'},
+    {q:'Necesitas almacenar pares clave-valor donde buscarás frecuentemente por clave (ejemplo: código de producto → precio). ¿Qué estructura de datos es más eficiente en Python?',
+     opts:['Lista — buscar recorriendo elemento a elemento','Diccionario (dict) — búsqueda O(1) por clave mediante hash table','Tupla — inmutable y eficiente para búsquedas','Conjunto (set) — optimizado para búsquedas rápidas'],
+     ans:1,exp:'El diccionario en Python implementa una hash table: la búsqueda por clave es O(1) independientemente del tamaño. Una lista requiere O(n) en el peor caso (recorrer todos). Para millones de productos, la diferencia es crítica.'},
+    {q:'Una API que desarrollaste está siendo usada por clientes y necesitas hacer un cambio que rompe la compatibilidad. ¿Cómo lo manejas correctamente?',
+     opts:['Hacer el cambio directamente — los clientes deberían actualizar','Versionar la API (api/v2/endpoint) manteniendo v1 activa durante un período de transición con documentación del cambio y fecha de deprecación','Eliminar la API y que los clientes usen otra solución','Avisar por WhatsApp a los clientes 5 minutos antes del cambio'],
+     ans:1,exp:'El versionamiento de API es el estándar: /v1/, /v2/, etc. Nunca se rompe una versión que tiene clientes activos sin aviso previo y período de migración. La documentación debe marcar /v1 como deprecated con fecha de fin de soporte.'},
+    {q:'¿Qué es una prueba unitaria (unit test) y por qué es importante en desarrollo?',
+     opts:['Una prueba que hace el usuario final antes de aceptar el software','Una prueba automática que verifica que una función específica produce el resultado esperado — detecta regresiones antes de llegar a producción','Un contrato entre el desarrollador y el cliente','La prueba de velocidad del servidor antes de desplegar'],
+     ans:1,exp:'Las pruebas unitarias prueban funciones en aislamiento (sin BD, sin red) y se ejecutan en segundos. Detectan regresiones — cuando un cambio en el código A rompe la función B inadvertidamente. En Python: pytest o unittest. Son la red de seguridad del desarrollador.'},
+    {q:'Tu sistema web responde en 500ms en desarrollo pero en 5 segundos en producción con 100 usuarios simultáneos. ¿Cuál es la causa más probable?',
+     opts:['El servidor de producción es más nuevo y por eso es más lento','Problema de concurrencia: consultas a base de datos sin índices que escalan mal con carga, o conexiones a BD sin pool de conexiones','El código fue compilado de forma diferente en producción','La zona horaria del servidor de producción es diferente'],
+     ans:1,exp:'El cuello de botella más común bajo carga es la base de datos: sin índices, una consulta rápida con 1 usuario se vuelve lenta con 100 usuarios haciendo table scans. Soluciones: índices correctos, connection pooling, caché (Redis) y optimización de queries con EXPLAIN.'},
+    {q:'¿Cuál es la diferencia entre SQL (relacional) y NoSQL y cuándo usarías cada uno?',
+     opts:['No hay diferencia — son sinónimos para base de datos','SQL para datos estructurados con relaciones fijas (transacciones financieras, inventario). NoSQL para datos variables, alta escala o formato flexible (perfiles de usuario, logs, documentos JSON)','NoSQL es siempre mejor porque es más moderno','SQL solo funciona en Windows; NoSQL en Linux'],
+     ans:1,exp:'SQL (PostgreSQL, MySQL): esquema fijo, transacciones ACID, ideal para datos relacionales. NoSQL (MongoDB, DynamoDB): esquema flexible, escala horizontal, ideal para datos no estructurados o de alta variabilidad. La elección depende del tipo y volumen de datos.'},
+    {q:'Un compañero propone "resolver el problema de rendimiento agregando más RAM al servidor". ¿Cuándo es correcto este enfoque?',
+     opts:['Siempre — más RAM siempre mejora el rendimiento','Solo si el cuello de botella es efectivamente la memoria RAM (visible en métricas de memoria). Primero hay que medir, no asumir','Nunca — siempre es mejor problema de código','Solo para bases de datos, no para aplicaciones web'],
+     ans:1,exp:'"Medir antes de optimizar" es el principio fundamental. Si el servidor usa el 95% de RAM, más RAM ayuda. Si el problema es CPU al 100%, más RAM no cambia nada. Herramientas: htop, New Relic, DataDog — medir primero, actuar después.'},
+    {q:'Necesitas compartir código con un equipo de 5 personas que trabaja en diferentes partes del mismo proyecto. ¿Cuál es el flujo de trabajo (workflow) recomendado en Git?',
+     opts:['Todos hacen push directo a la rama main sin revisión','Cada desarrollador trabaja en su propia rama de feature, hace pull request a main, y otro desarrollador la revisa antes de hacer merge — GitFlow o GitHub Flow','Un solo desarrollador escribe todo el código y comparte el archivo .zip al final','Usar solo USB para compartir el código entre computadores'],
+     ans:1,exp:'GitHub Flow es el estándar en equipos ágiles: rama por feature → pull request → code review → merge a main. Previene conflictos directos en main, garantiza revisión de código y mantiene el historial limpio. main siempre debe estar desplegable.'}
   ],
   personality:[
     {q:'Cuando enfrento un problema en el trabajo, generalmente:',opts:['Busco soluciones de forma independiente','Pido ayuda inmediatamente','Espero que se resuelva','Evito el problema'],ans:0,exp:'La proactividad y autonomía son muy valoradas.'},
@@ -1246,7 +1310,218 @@ const QUESTIONS={
     {q:'Cuando un proyecto sale mal:',opts:['Busco culpables','Analizo qué falló y aprendo','Me desanimo permanentemente','Lo ignoro'],ans:1,exp:'La mentalidad de crecimiento convierte errores en aprendizaje.'},
     {q:'¿Cómo describes tu puntualidad?',opts:['Siempre llego tarde','Soy puntual y lo valoro','Llego cuando puedo','Es irrelevante'],ans:1,exp:'La puntualidad refleja respeto y compromiso profesional.'},
     {q:'En situaciones de alta presión:',opts:['Te bloqueas','Te mantienes calmado y enfocado','Descargas el estrés en otros','Te rindes'],ans:1,exp:'La inteligencia emocional bajo presión es muy valorada.'},
-    {q:'Tu estilo de comunicación en el trabajo es:',opts:['Pasivo, casi no hablas','Asertivo y claro','Agresivo cuando no te escuchan','Variable sin control'],ans:1,exp:'La comunicación asertiva es la más efectiva en entornos laborales.'}
+    {q:'Tu estilo de comunicación en el trabajo es:',opts:['Pasivo, casi no hablas','Asertivo y claro','Agresivo cuando no te escuchan','Variable sin control'],ans:1,exp:'La comunicación asertiva es la más efectiva en entornos laborales.'},
+    // ── ESCENARIOS REALES ──
+    {q:'Un cliente externo te llama furioso porque el entregable llegó tarde. Tú sabes que el retraso fue responsabilidad de otro departamento. ¿Qué haces?',
+     opts:['Le explicas inmediatamente que la culpa fue del otro departamento','Escuchas al cliente, reconoces el impacto del retraso, ofreces una solución concreta y luego gestionas el problema interno de forma separada','Ignoras la llamada — no es tu responsabilidad','Le pides que hable directamente con el área responsable'],
+     ans:1,exp:'Ante un cliente, la prioridad es resolver, no defender. Primero: escuchar y reconocer. Segundo: ofrecer solución. Tercero: gestionar internamente el problema de origen. Señalar culpables en la primera interacción daña la relación con el cliente.'},
+    {q:'Tu jefe te asigna una tarea con un plazo imposible (2 días para lo que normalmente toma 5). ¿Cuál es la respuesta más profesional?',
+     opts:['Aceptar sin decir nada y entregar algo incompleto al final','Negarte rotundamente a aceptar la tarea','Comunicar de inmediato el impacto real del plazo, proponer alternativas (priorizar lo esencial, agregar recursos, ajustar el alcance) y documentar el acuerdo','Trabajar 48 horas seguidas sin dormir para cumplir'],
+     ans:1,exp:'Gestión de expectativas proactiva: informar a tiempo que el plazo es inviable y proponer opciones es más valioso que aceptar en silencio y fallar. El error es callarse. Un profesional negocia con datos, no solo cumple o rechaza.'},
+    {q:'En una reunión de equipo, un colega presenta una idea que ya propusiste hace un mes sin darte crédito. ¿Cómo reaccionas?',
+     opts:['Lo interrumpes en la reunión para reclamar el crédito en voz alta','Al finalizar la reunión, hablas en privado con el colega de forma tranquila y directa para aclarar la situación','Lo ignoras para no generar conflicto y asumes que fue un error','Le envías un correo en copia a todos en el equipo reclamando la autoría'],
+     ans:1,exp:'La conversación directa en privado es el primer paso según los modelos de resolución de conflictos (Thomas-Kilmann). Escalar directamente en público o por correo masivo daña las relaciones y el clima laboral antes de intentar resolver bilateralmente.'},
+    {q:'Llevas 2 semanas en un nuevo trabajo y notas que el proceso actual tiene un error que podría mejorar. ¿Cuándo y cómo lo planteas?',
+     opts:['Cambias el proceso directamente sin consultar a nadie','Lo planteas en los primeros días como pregunta: "¿Han evaluado la opción de X? Noté que podría mejorar Y" — mostrando curiosidad antes que crítica','Esperas un año hasta tener más confianza para proponerlo','Dices a todo el equipo que el proceso actual está mal hecho'],
+     ans:1,exp:'En la curva de aprendizaje, hacer preguntas en lugar de afirmaciones es más efectivo: "¿Han evaluado...?" invite al diálogo sin generar resistencia. Mostrar iniciativa temprana es positivo si se hace con humildad y apertura al contexto que desconoces.'},
+    {q:'Tu equipo debe entregar un proyecto en una semana y un miembro clave avisa que estará de baja por enfermedad. ¿Qué haces?',
+     opts:['Esperas que el compañero se recupere y pospones todo el proyecto','Asumes todo el trabajo del compañero sin avisar a nadie','Informas inmediatamente al líder del proyecto, redistribuyes las tareas según capacidad del equipo y ajustas el alcance si es necesario','Le pides al compañero enfermo que trabaje desde casa de todas formas'],
+     ans:1,exp:'La gestión de riesgos proactiva es una competencia laboral clave: identificar el impacto, comunicarlo de inmediato y proponer soluciones (redistribución, priorización, negociación de plazo). Esconder el problema hasta el último momento causa mayor daño.'},
+    {q:'Recibes retroalimentación negativa de tu desempeño en una evaluación de mitad de año. La crítica te parece injusta. ¿Cómo respondes?',
+     opts:['Refutas punto por punto en el momento con tono defensivo','Agradeces el feedback, pides ejemplos concretos para entender mejor la percepción y solicitas reunión de seguimiento para acordar un plan de mejora','Renuncias — si no te valoran, es mejor irse','Buscas apoyo de compañeros para contradecir la evaluación'],
+     ans:1,exp:'La receptividad al feedback, incluso cuando se percibe como injusto, es una de las competencias más valoradas por los empleadores. Pedir ejemplos específicos convierte la crítica vaga en algo accionable. La reacción defensiva cierra el diálogo y confirma la percepción negativa.'},
+    {q:'Trabajas en modalidad remota y tu productividad ha bajado por las distracciones en casa. ¿Qué estrategia aplicas?',
+     opts:['Informas a tu jefe que el trabajo remoto no es para ti y pides volver a la oficina permanentemente','Implementas estructura: horario fijo, espacio dedicado, bloques de trabajo (técnica Pomodoro), y comunicas tu disponibilidad claramente al equipo','Trabajas con el televisor encendido para no sentirte solo','No le cuentas a nadie — es un problema personal que debes resolver solo'],
+     ans:1,exp:'La autogestión en trabajo remoto es una competencia crítica en 2026. Las estrategias evidenciadas: entorno físico separado, gestión del tiempo estructurada (bloques de enfoque), comunicación proactiva de disponibilidad y límites claros entre trabajo y vida personal.'},
+    {q:'Tu empresa anuncia una reestructuración que cambia completamente tu rol. Tendrás nuevas responsabilidades que no dominás. ¿Cuál es la actitud correcta?',
+     opts:['Resistirte y negarte a asumir las nuevas funciones','Aceptar el cambio con apertura, identificar las brechas de competencia, crear un plan de desarrollo y buscar apoyo (mentores, cursos)','Buscar trabajo en otra empresa inmediatamente','Esperar que alguien más te explique lo que debes hacer sin tomar iniciativa'],
+     ans:1,exp:'La adaptabilidad ante cambios organizacionales es la competencia #1 del World Economic Forum para 2025-2030. El cambio es constante: quienes identifican sus brechas y actúan proactivamente para cerrarlas tienen mayor empleabilidad y desarrollo de carrera.'},
+    {q:'En tu equipo hay una persona que constantemente llega tarde a las reuniones y retrasa el trabajo del grupo. Eres un compañero (no el líder). ¿Qué haces?',
+     opts:['Lo ignoras — no es tu problema y tampoco eres el jefe','Le dices en la próxima reunión frente a todos que su comportamiento afecta al equipo','En privado, le preguntas si está bien y le comentas cómo el retraso impacta al equipo, escuchando su perspectiva','Lo reportas directamente a Recursos Humanos sin hablarlo antes con él'],
+     ans:1,exp:'El feedback entre pares debe ser: privado, específico sobre el impacto (no la persona), y con escucha activa. Confrontar en público genera defensividad. Escalar a RRHH sin conversación previa rompe la confianza del equipo. El modelo DESC: Describir, Expresar impacto, Solicitar cambio, Consecuencias.'},
+    {q:'Te ofrecen participar en un proyecto nuevo muy interesante, pero ya tienes demasiado trabajo. ¿Cómo lo manejas?',
+     opts:['Aceptas todo sin evaluar tu carga actual — no puedes decir no a tu jefe','Rechazas sin dar explicación para proteger tu tiempo','Presentas a tu jefe tu carga actual de trabajo completa, exploras prioridades juntos y decides si algo puede pausarse, delegarse o si el nuevo proyecto debe esperar','Aceptas y empiezas a hacer trabajo de menor calidad en todos los proyectos'],
+     ans:1,exp:'La gestión de la carga laboral requiere visibilidad compartida con el líder. Decir "sí" a todo lleva al burnout y baja calidad. La conversación de prioridades con datos concretos (mis compromisos actuales son X, Y, Z) es la respuesta profesional más valorada.'}
+  ],
+  automation:[
+    // ── CASO 1: Lectura de documentos escaneados ──
+    {q:'Una empresa recibe facturas escaneadas como imágenes (JPG/PDF). ¿Qué tecnología permite extraer automáticamente texto, fechas y valores de esas imágenes?',
+     opts:['Twitter API para monitorear menciones de las facturas','OCR + IA documental (Azure Document Intelligence, Google Document AI, AWS Textract)','API de OpenWeatherMap combinada con Excel','Copiar y pegar manualmente en una tabla de Word'],
+     ans:1,
+     exp:'OCR (Reconocimiento Óptico de Caracteres) + modelos de IA documental como Azure Document Intelligence, Google Document AI o AWS Textract extraen texto estructurado de imágenes con alta precisión. Son el estándar en automatización de documentos.'},
+    {q:'Recibes mensajes de WhatsApp de clientes con errores de ortografía y redacción libre. ¿Qué técnica permite clasificarlos automáticamente como "queja", "pedido" o "pregunta de inventario"?',
+     opts:['Búsqueda manual de palabras clave con Ctrl+F en el historial de chat','Clasificación por intención mediante NLP/LLM (procesamiento de lenguaje natural con IA)','Enviar todos los mensajes al mismo asesor sin clasificar','Eliminar los mensajes con errores ortográficos'],
+     ans:1,
+     exp:'Los modelos NLP/LLM (como GPT, Claude o modelos BERT entrenados) pueden clasificar la intención de un mensaje incluso con errores ortográficos, porque entienden el contexto semántico, no solo palabras exactas.'},
+    {q:'Un sistema clasifica un mensaje de cliente como "queja". ¿Qué debe hacer el bot automáticamente a continuación?',
+     opts:['Borrar el mensaje para no generar carga de trabajo','Redirigir al asesor de quejas asignado, registrar el evento y notificar al cliente','Pedir al cliente que llame por teléfono','Responder con un mensaje genérico idéntico para todas las quejas'],
+     ans:1,
+     exp:'Un bot bien diseñado redirige al canal correcto, registra la interacción en el CRM y confirma recepción al cliente — sin intervención humana. Este es el flujo estándar en automatización de atención al cliente.'},
+    {q:'Después de extraer datos de documentos escaneados, ¿cuál es el formato más adecuado para almacenarlos y procesarlos en pasos siguientes del pipeline?',
+     opts:['Texto plano (.txt) sin estructura','JSON o tabla estructurada (CSV/DB) con campos etiquetados','Captura de pantalla del documento original','Archivo de audio narrado con los datos'],
+     ans:1,
+     exp:'JSON y las tablas estructuradas (CSV, base de datos) permiten acceder a los datos por campo (nombre, fecha, valor) de forma programática. El texto plano sin estructura dificulta el procesamiento posterior.'},
+    {q:'¿Qué instrucción (prompt) sería más efectiva para pedirle a una IA que clasifique el mensaje "kiero saber si tienen el producto 4521 disponble"?',
+     opts:['"Lee el mensaje y responde algo"','Ninguna instrucción — la IA lo hace automáticamente','Clasifica el siguiente mensaje en una de estas categorías: [queja, pedido, consulta_inventario, otro]. Responde solo con la categoría. Mensaje: {mensaje}"','Dame una lista de todos los mensajes del cliente'],
+     ans:2,
+     exp:'Las instrucciones precisas con categorías definidas y formato de respuesta esperado (solo la categoría) reducen ambigüedad y aumentan la consistencia. Es la técnica de "few-shot prompting" aplicada a clasificación.'},
+    // ── CASO 2: Facturas de proveedores + Excel aduanero ──
+    {q:'Llegan facturas de proveedores internacionales con diseños variables (diferente layout según proveedor). ¿Qué enfoque de extracción es más robusto?',
+     opts:['Plantillas fijas definidas manualmente para cada proveedor (falla si el layout cambia)','Extracción basada en IA (Document AI, LayoutLM) que se adapta a diferentes formatos sin plantillas fijas','Un analista abre cada factura y copia los datos en Excel','Solo aceptar facturas en un único formato PDF estandarizado'],
+     ans:1,
+     exp:'Los modelos de IA documental entrenados en extracción (como Azure Form Recognizer o LayoutLM) generalizan a layouts no vistos antes. Las plantillas fijas fallan cuando el proveedor cambia su formato de factura.'},
+    {q:'Tienes 200 códigos de referencia extraídos de una factura y debes buscarlos en un Excel con 50.000 registros aduaneros. ¿Cuál es la herramienta más eficiente?',
+     opts:['Abrir Excel manualmente y usar Ctrl+F para cada uno de los 200 códigos','Python con pandas: operación merge/lookup entre el DataFrame de facturas y el Excel aduanero','Copiar cada código en Google y buscar uno a uno','Imprimir la factura y buscar con resaltador en la hoja impresa del Excel'],
+     ans:1,
+     exp:'Python + pandas puede hacer el cruce de 200 códigos contra 50.000 filas en segundos con una operación merge o pd.DataFrame.isin(). El proceso manual tomaría horas y tendría errores.'},
+    {q:'Un código de referencia de la factura NO se encuentra en el Excel aduanero. ¿Qué debe hacer el bot automatizado?',
+     opts:['Detener todo el proceso hasta que un humano revise','Registrar la excepción, continuar con los demás códigos y enviar una alerta al analista con el detalle','Eliminar la factura del sistema','Asignar valores aleatorios del Excel para que el proceso continúe'],
+     ans:1,
+     exp:'Un bot con tolerancia a fallos nunca detiene todo el proceso por una excepción. Lo correcto es: registrar el error con detalle, continuar con los registros válidos, y notificar a un humano solo lo que requiere revisión.'},
+    {q:'Para validar que el monto en la factura coincide con el valor en la base de datos aduanera, considerando que pueden venir en formatos distintos ("US$1.200" vs "$1,200.00"), ¿qué técnica aplicas?',
+     opts:['Comparación exacta de strings — si no es idéntico, reportar error','Normalización de formato (eliminar símbolos, unificar separadores) + comparación numérica','Ignorar la comparación de montos — solo cruzar por código','Pedir al proveedor que reenvíe la factura en el formato correcto'],
+     ans:1,
+     exp:'La normalización previa (quitar "$", "US", ".", "," según el formato local) permite comparar los valores como números. La comparación directa de strings falla con variaciones de formato que representan el mismo valor.'},
+    {q:'¿En qué momento del proceso automatizado debe generarse una notificación automática al analista?',
+     opts:['En cada coincidencia exitosa para confirmar que todo está bien','Solo cuando se detecta una discrepancia, un código no encontrado o un valor que no cuadra','A las 9 AM todos los días sin importar si hay excepciones','Nunca — si el proceso es automatizado no debe haber notificaciones'],
+     ans:1,
+     exp:'Las notificaciones deben ser por excepción, no por éxito rutinario. Notificar cada coincidencia genera ruido y hace que los analistas ignoren las alertas. La regla: solo notificar lo que requiere acción humana.'},
+    // ── CASO 3: Arquitectura y escalabilidad ──
+    {q:'Debes cargar 10.000 filas de Excel en un sistema web corporativo. ¿Cuál arquitectura garantiza escalabilidad y tolerancia a fallos?',
+     opts:['Un único hilo que carga todas las filas en un solo ciclo sin manejo de errores','Procesamiento por lotes (batches) con cola de mensajes, lógica de reintentos y checkpoints de progreso','Copiar y pegar manualmente en grupos de 100 filas','Convertir el Excel a PDF primero y luego procesarlo'],
+     ans:1,
+     exp:'La arquitectura de batches con colas (RabbitMQ, AWS SQS, Azure Service Bus) divide el trabajo, tolera fallos parciales y permite reanudar desde el último checkpoint. Es el patrón estándar en ETL a escala.'},
+    {q:'Un bot RPA que procesa documentos falla en la fila 3.200 de 10.000. ¿Qué estrategia permite reanudar sin reprocesar las primeras 3.200 filas?',
+     opts:['Reiniciar el proceso desde el principio y esperar que no falle de nuevo','Guardar checkpoints del progreso (número de última fila procesada) y reanudar desde ahí al reiniciar','Llamar al proveedor del sistema para reportar el error','Procesar solo las últimas 6.800 filas en la siguiente ejecución manualmente'],
+     ans:1,
+     exp:'Los checkpoints son el mecanismo estándar de tolerancia a fallos. Al guardar el estado del progreso (en BD o archivo), el bot puede reiniciarse exactamente donde se interrumpió sin duplicar trabajo.'},
+    {q:'¿Cuál es la diferencia fundamental entre un robot RPA tradicional y una automatización basada en IA?',
+     opts:['El RPA es más costoso y la IA es siempre gratuita','El RPA sigue reglas fijas sobre interfaces de usuario; la IA maneja datos no estructurados y contextos variables','No hay diferencia, son exactamente lo mismo con distinto nombre comercial','La IA funciona sin internet; el RPA requiere conexión permanente'],
+     ans:1,
+     exp:'RPA (como UiPath, Power Automate) automatiza flujos definidos y predecibles sobre interfaces fijas. La IA (OCR, NLP, LLM) procesa contenido variable, no estructurado y ambiguo. La combinación de ambos es el estándar actual.'},
+    {q:'Para digitalizar formularios físicos en un flujo automatizado, ¿cuál es la secuencia correcta?',
+     opts:['Imprimir → Archivar en carpeta → Olvidar','Escanear → OCR/IA para extraer datos → Validar → Registrar en base de datos','Tomar foto con celular → Enviar por WhatsApp → Transcribir manualmente','Enviarlo por correo al área de sistemas y esperar respuesta'],
+     ans:1,
+     exp:'El flujo estándar de digitalización es: captura (escaneo/foto) → extracción (OCR+IA) → validación (reglas de negocio) → almacenamiento (base de datos / sistema destino). Cada etapa puede automatizarse.'},
+    {q:'¿Qué significa que una solución de automatización sea "de punta a punta" (end-to-end)?',
+     opts:['Que tiene dos robots: uno al inicio y otro al final del proceso','Que el proceso va desde la ingesta del documento hasta el registro en el sistema destino sin intervención humana','Que funciona 24/7 sin apagarse nunca','Que corre únicamente de noche para no interferir con los usuarios'],
+     ans:1,
+     exp:'End-to-end significa que la automatización cubre TODO el flujo: recepción del documento → extracción → validación → cruce de datos → manejo de excepciones → registro final. Sin intervención humana en el flujo normal.'},
+    // ── BLOQUE 2: APIs, Python, herramientas ──
+    {q:'Necesitas consumir una API REST externa para obtener datos de proveedores. ¿Qué biblioteca de Python es el estándar para hacer solicitudes HTTP?',
+     opts:['os (módulo del sistema operativo)','requests — la más usada para HTTP en Python','math — para cálculos numéricos','json.decoder — para parsear respuestas'],
+     ans:1,
+     exp:'La biblioteca "requests" es el estándar de facto en Python para hacer llamadas HTTP (GET, POST, PUT, DELETE). Permite manejar headers, autenticación, timeouts y parsear la respuesta JSON con response.json().'},
+    {q:'Una API que consumes tiene un límite de 100 llamadas por minuto. Tu bot hace 500 llamadas seguidas y empieza a recibir errores 429. ¿Qué debes implementar?',
+     opts:['Ignorar los errores 429 y continuar a máxima velocidad','Rate limiting: pausas calculadas entre llamadas + lógica de reintento con backoff exponencial','Cambiar de proveedor de API inmediatamente','Hacer todas las llamadas en paralelo para terminar más rápido'],
+     ans:1,
+     exp:'El error 429 significa "Too Many Requests". La solución es implementar rate limiting propio (time.sleep entre llamadas) y backoff exponencial en los reintentos (esperar 1s, 2s, 4s, 8s...). Ignorarlo causa bloqueo de la cuenta.'},
+    {q:'Tu bot necesita autenticarse en un sistema web antes de hacer scraping/automatización. ¿Cuál es la práctica correcta para manejar las credenciales?',
+     opts:['Escribir usuario y contraseña directamente en el código fuente del bot','Guardarlas en variables de entorno (.env) o un gestor de secretos (Azure Key Vault, AWS Secrets Manager)','Compartirlas por WhatsApp con el equipo técnico','Usar siempre el mismo usuario genérico para todos los bots'],
+     ans:1,
+     exp:'Las credenciales nunca deben estar en el código fuente (pueden quedar en repositorios públicos). El estándar es variables de entorno (.env con python-dotenv) o gestores de secretos en la nube. Cada bot debe tener su propio usuario de servicio.'},
+    {q:'¿Cuál es la diferencia entre un webhook y un proceso de polling en automatización?',
+     opts:['Son exactamente lo mismo, solo términos diferentes','Webhook: el sistema externo avisa activamente cuando hay un evento. Polling: tu bot pregunta repetidamente si hay novedades','Polling es más eficiente y moderno que el webhook','Webhook solo funciona con WhatsApp; polling es para correo'],
+     ans:1,
+     exp:'Webhook (push): el sistema te notifica en tiempo real cuando ocurre un evento — más eficiente. Polling (pull): tu bot consulta periódicamente "¿hay algo nuevo?" — consume más recursos. Prefiere webhook cuando el sistema lo soporte.'},
+    {q:'Quieres automatizar el envío de correos de notificación cuando un proceso termina. ¿Qué protocolo/biblioteca de Python usarías?',
+     opts:['HTTP requests a Gmail','smtplib de Python con servidor SMTP, o la API de SendGrid/Mailgun para mayor confiabilidad','Selenium para abrir el navegador y escribir el correo manualmente','FTP para transferir el correo al servidor de destino'],
+     ans:1,
+     exp:'smtplib es el módulo nativo de Python para enviar correos vía SMTP. Para producción, APIs como SendGrid o Mailgun ofrecen mayor entregabilidad, métricas y manejo de bounces. Selenium para correos es innecesariamente complejo.'},
+    {q:'¿Qué herramienta permite crear automatizaciones visuales (sin código) conectando apps como Gmail, Google Sheets, Slack y más de 5000 servicios?',
+     opts:['Jupyter Notebook','n8n / Zapier / Make (Integromat) — plataformas de automatización no-code/low-code','Notepad++ con macros','SQL Server Management Studio'],
+     ans:1,
+     exp:'n8n, Zapier y Make son plataformas de automatización que conectan cientos de apps mediante interfaces visuales de drag-and-drop. Son ideales para flujos de integración entre sistemas sin necesidad de código. n8n además es open-source.'},
+    {q:'Tienes un DataFrame de pandas con 50.000 clientes y necesitas eliminar filas duplicadas basándote en la columna "correo". ¿Qué código es correcto?',
+     opts:['df.remove_duplicates("correo")','df = df.drop_duplicates(subset=["correo"], keep="first")','df.delete(duplicates=True)','df.filter(unique="correo")'],
+     ans:1,
+     exp:'df.drop_duplicates(subset=["correo"], keep="first") es el método correcto en pandas. El parámetro "keep" define cuál conservar: "first" (primera ocurrencia), "last" (última) o False (elimina todos los duplicados).'},
+    {q:'Un proceso de automatización corre a las 2 AM todos los días y procesa archivos nuevos en una carpeta. ¿Qué mecanismo deberías usar para programar esa ejecución automática?',
+     opts:['Un empleado que encienda el computador a las 2 AM todos los días','Cron job (Linux/Mac) o Tarea programada de Windows — programación horaria del sistema operativo','El bot se programa solo sin configuración adicional','Una alarma en el celular para recordar ejecutarlo manualmente'],
+     ans:1,
+     exp:'Los cron jobs (Linux: crontab -e) o las Tareas Programadas de Windows permiten ejecutar scripts automáticamente según un calendario. En la nube, equivalentes son AWS EventBridge, Azure Logic Apps timer o GitHub Actions scheduled.'},
+    {q:'¿Qué es un "log" en el contexto de automatización y por qué es indispensable en producción?',
+     opts:['Un archivo donde se guarda el código fuente del bot','Un registro cronológico de eventos, errores y acciones del bot — permite auditar, depurar y monitorear el proceso','Un tipo de base de datos especial para almacenar imágenes','El nombre del servidor donde corre el bot'],
+     ans:1,
+     exp:'Los logs son el registro de vida del bot: qué hizo, cuándo, qué errores encontró. Sin logs, es imposible diagnosticar fallos en producción. En Python: módulo logging. En producción: enviar logs a servicios como Datadog, CloudWatch o Splunk.'},
+    {q:'Tu bot de extracción de facturas lleva 3 días en producción y empieza a fallar en un nuevo formato de PDF. ¿Cuál es la acción correcta?',
+     opts:['Apagar el bot hasta que el proveedor cambie el formato de factura','Analizar el log para identificar el patrón del nuevo formato, actualizar el modelo de extracción y hacer pruebas antes de redeployar','Eliminar las facturas del nuevo proveedor del proceso','Pedir al usuario final que transcriba manualmente esas facturas'],
+     ans:1,
+     exp:'Los bots en producción deben evolucionar. El proceso correcto es: revisar el log → identificar el patrón del fallo → actualizar el modelo/reglas → probar en ambiente de QA → redesplegar. Nunca apagar el proceso completo por un caso especial.'},
+    // ── BLOQUE 3: IA Generativa y LLMs ──
+    {q:'Quieres que un LLM (como GPT-4 o Claude) extraiga datos estructurados de un contrato legal en texto libre y los devuelva en formato JSON. ¿Qué técnica de prompting es más efectiva?',
+     opts:['Simplemente pegar el contrato y esperar que el LLM adivine qué extraer','Prompt estructurado: definir los campos a extraer, el formato JSON esperado y dar un ejemplo del output deseado','Pedirle al LLM que resuma el contrato en un párrafo','Dividir el contrato en letras individuales y enviarlas por separado'],
+     ans:1,
+     exp:'El prompting estructurado con esquema JSON de salida y un ejemplo (few-shot) produce resultados consistentes. Sin estructura, el LLM puede inventar campos o cambiar el formato. Técnica: "Extrae los siguientes campos: [...]. Devuelve exactamente este JSON: {...}".'},
+    {q:'¿Qué es la "alucinación" en modelos de lenguaje (LLMs) y cómo afecta a un bot de automatización?',
+     opts:['Cuando el LLM se cuelga por sobrecarga de memoria RAM','Cuando el LLM genera información inventada con aparente confianza — puede insertar datos falsos en la base de datos del proceso','Cuando el LLM responde muy lentamente debido a la latencia de red','Un error de autenticación con la API del LLM'],
+     ans:1,
+     exp:'Las alucinaciones son el mayor riesgo de usar LLMs en automatización: pueden inventar fechas, valores o nombres que parecen reales. Mitigación: usar Retrieval Augmented Generation (RAG), validar la salida contra datos reales, y no confiar ciegamente en el output del LLM.'},
+    {q:'¿Qué es RAG (Retrieval Augmented Generation) y para qué sirve en automatización empresarial?',
+     opts:['Una técnica para acelerar el tiempo de respuesta del servidor de la empresa','Combinar un LLM con una base de datos de conocimiento real: el LLM busca información relevante antes de responder, reduciendo alucinaciones','Un protocolo de comunicación entre robots industriales','Una herramienta de diseño gráfico para presentaciones de automatización'],
+     ans:1,
+     exp:'RAG permite que un LLM responda con base en documentos reales de la empresa (manuales, políticas, base de datos de productos) en lugar de solo su entrenamiento. Resultado: respuestas precisas y actualizadas sin reentrenar el modelo.'},
+    {q:'Una empresa quiere un bot que responda preguntas de clientes sobre sus facturas consultando la base de datos en tiempo real. ¿Qué arquitectura es la correcta?',
+     opts:['LLM sin acceso a datos — responde solo con conocimiento general','LLM + herramienta de consulta a base de datos (agente de IA con tool use) que busca la factura real del cliente antes de responder','Copiar y pegar la base de datos completa en el prompt del LLM','Un formulario estático con preguntas frecuentes sin IA'],
+     ans:1,
+     exp:'Los agentes de IA con "tool use" (Claude, GPT-4 con function calling) pueden llamar APIs o bases de datos en tiempo real. El flujo es: cliente pregunta → agente identifica la intención → llama la función de consulta → responde con datos reales del cliente.'},
+    {q:'¿Cuál es la mejor práctica para validar el output de un LLM antes de insertarlo en una base de datos de producción?',
+     opts:['Confiar siempre en el LLM porque tiene más del 99% de precisión','Validar el output con un esquema (Pydantic, JSON Schema), comparar rangos esperados y tener un paso de revisión humana para registros con baja confianza','Insertar primero en la base de datos y corregir después si hay quejas','No usar LLMs para insertar en bases de datos nunca'],
+     ans:1,
+     exp:'La validación por capas es el estándar: 1) Validar formato con Pydantic/JSON Schema, 2) Validar valores dentro de rangos esperados (fechas sensatas, montos razonables), 3) Para casos con baja confianza o campos críticos, escalar a revisión humana.'},
+    // ── BLOQUE 4: Arquitectura avanzada ──
+    {q:'Tienes un bot que debe procesar 10.000 PDFs en paralelo. ¿Qué patrón arquitectónico distribuye el trabajo eficientemente?',
+     opts:['Un solo proceso secuencial que procesa un PDF a la vez','Cola de mensajes (SQS, RabbitMQ) con múltiples workers consumiendo en paralelo — patrón productor-consumidor','Enviar todos los PDFs por correo al equipo para que los revisen','Comprimir todos en un ZIP y procesarlos como un único archivo'],
+     ans:1,
+     exp:'El patrón productor-consumidor con cola de mensajes es el estándar para procesamiento masivo paralelo. El productor ingresa los trabajos en la cola; múltiples workers los consumen en paralelo. Escala horizontalmente y tolera fallos de workers individuales.'},
+    {q:'¿Qué herramienta permite orquestar flujos complejos de automatización con dependencias entre tareas, reintentos y programación visual de DAGs?',
+     opts:['Microsoft Word con macros VBA','Apache Airflow o Prefect — orquestadores de flujos de trabajo (workflows)','Paint para diseñar el diagrama del proceso','Excel con tablas dinámicas'],
+     ans:1,
+     exp:'Apache Airflow y Prefect son orquestadores open-source que permiten definir DAGs (Grafos Acíclicos Dirigidos) de tareas con dependencias, reintentos automáticos, logs centralizados y alertas. Son el estándar en pipelines de datos y automatización empresarial.'},
+    {q:'¿Qué significa "idempotencia" en el contexto de automatización y por qué es crucial?',
+     opts:['Que el bot nunca comete errores','Que ejecutar el mismo proceso múltiples veces produce el mismo resultado — evita duplicados si el bot se reinicia','Que el bot es muy rápido en su procesamiento','Que el bot puede ejecutarse en múltiples idiomas simultáneamente'],
+     ans:1,
+     exp:'La idempotencia es crítica en sistemas distribuidos: si el bot falla y se reinicia, no debe insertar registros duplicados. Se implementa con: verificar si el registro ya existe antes de insertar, usar claves únicas en la BD, o registrar qué items ya fueron procesados.'},
+    {q:'Un proceso de automatización falla silenciosamente (no hay error visible pero los datos no se procesan). ¿Cuál es la causa más probable y cómo prevenirlo?',
+     opts:['El computador está muy caliente','Manejo incorrecto de excepciones: un bloque try/except vacío que captura el error pero no lo registra ni alerta','La conexión a internet es lenta','El proveedor del servicio tiene mantenimiento'],
+     ans:1,
+     exp:'El anti-patrón más peligroso es el "except pass" — captura el error y lo silencia. SIEMPRE: loggear el error con stack trace, incrementar un contador de fallos, alertar si supera un umbral. Un fallo silencioso puede pasar desapercibido por días.'},
+    {q:'¿Qué es Docker y por qué es útil para desplegar bots de automatización?',
+     opts:['Una plataforma de redes sociales para compartir código','Un contenedor que empaqueta el bot con todas sus dependencias, garantizando que corre igual en cualquier entorno (desarrollo, staging, producción)','Un gestor de bases de datos relacionales','Un editor de código similar a VS Code'],
+     ans:1,
+     exp:'Docker empaqueta el bot con su versión exacta de Python, librerías y configuración. Elimina el problema "en mi máquina funciona": el mismo contenedor corre idéntico en el laptop del developer y en el servidor de producción. Fundamental en deployment moderno.'},
+    {q:'¿Cómo priorizarías qué procesos automatizar primero en una empresa, cuando hay 20 candidatos?',
+     opts:['Automatizar primero los procesos más complejos para demostrar capacidad técnica','Calcular el ROI: (horas ahorradas × costo/hora) ÷ costo de automatización. Priorizar mayor ROI, menor riesgo y mayor volumen','Automatizar primero los favoritos del CEO sin análisis','Empezar por orden alfabético del nombre del proceso'],
+     ans:1,
+     exp:'La priorización por ROI es el estándar en consultoría de automatización. Factores clave: volumen de transacciones, tiempo por transacción, frecuencia, tasa de error actual y complejidad de implementación. Los procesos de alto volumen + baja complejidad son la primera ola ideal.'},
+    {q:'Un bot de RPA que automatiza la carga de datos en un ERP empieza a fallar después de una actualización del software. ¿Por qué y cómo prevenirlo?',
+     opts:['El RPA siempre falla en lunes — es un problema conocido','El RPA interactúa con la interfaz visual: si cambian coordenadas, IDs o textos de botones, el bot se rompe. Solución: usar identificadores estables (XPath, ARIA) y tener un ambiente de prueba para actualizaciones','El ERP necesita más memoria RAM','El bot necesita reiniciarse para actualizarse solo'],
+     ans:1,
+     exp:'La fragilidad ante cambios de UI es el talón de Aquiles del RPA clásico. Mitigaciones: usar selectores robustos (XPath semántico, no coordenadas fijas), tener ambiente de prueba donde probar el bot antes de cada actualización del sistema, y monitorear el bot en producción.'},
+    {q:'¿Qué es un "ambiente de producción" vs "ambiente de desarrollo" en automatización?',
+     opts:['Son el mismo servidor con distinto nombre para confundir a los hackers','Desarrollo: donde el programador prueba el bot con datos de prueba. Producción: donde el bot real procesa datos reales — nunca se deben mezclar','Producción es más lento porque tiene más seguridad','Desarrollo solo existe para proyectos grandes de más de 10 personas'],
+     ans:1,
+     exp:'Separar ambientes es fundamental: en desarrollo se prueba con datos ficticios y se puede fallar sin consecuencias. En producción corren datos reales de clientes o contabilidad. Un bug desplegado directamente a producción puede corromper datos o generar pérdidas.'},
+    {q:'¿Qué herramienta de Microsoft permite crear automatizaciones de escritorio y nube sin código, muy común en empresas con ecosistema Office 365?',
+     opts:['Microsoft Paint con macros avanzadas','Microsoft Power Automate (antes Flow) — plataforma de automatización no-code integrada con Teams, SharePoint, Excel y más de 400 conectores','Microsoft Solitaire — juego de cartas','Microsoft Access para bases de datos locales'],
+     ans:1,
+     exp:'Microsoft Power Automate es la plataforma de automatización oficial del ecosistema Microsoft. Permite crear flujos visuales que conectan Outlook, Teams, SharePoint, Excel, Forms y cientos de apps externas. Muy común en empresas que ya usan Office 365.'},
+    {q:'Al automatizar la lectura de un Excel con pandas, una columna de fechas viene como texto ("15/03/2025"). ¿Cómo la conviertes al tipo fecha correcto?',
+     opts:['Dejarla como texto — pandas entiende las fechas automáticamente siempre','pd.to_datetime(df["fecha"], format="%d/%m/%Y") — conversión explícita con el formato de la columna','df["fecha"].to_int() para convertir a número entero','df.date_convert("fecha") — función nativa de pandas'],
+     ans:1,
+     exp:'pd.to_datetime() con el format explícito es la forma correcta. Sin el format, pandas puede confundir día y mes (interpretar "03/15" como 3 de enero o 15 de marzo). Una vez convertida, puedes filtrar por rangos, calcular diferencias y agrupar por mes/año.'},
+    {q:'¿Qué es Selenium / Playwright y cuándo deberías usarlo en automatización?',
+     opts:['Un lenguaje de programación alternativo a Python','Herramientas de automatización de navegador web — úsalas cuando el sistema solo tiene interfaz visual y no tiene API ni servicio web accesible','Un servicio de almacenamiento en la nube tipo S3','Un framework de seguridad para encriptar datos en reposo'],
+     ans:1,
+     exp:'Selenium y Playwright controlan el navegador como si fuera un humano (clic, escritura, scroll). Úsalos como último recurso cuando el sistema no tiene API. Son frágiles ante cambios de UI. Si el sistema tiene API REST, úsala directamente — es más rápida y estable.'},
+    {q:'Diseñas un proceso que extrae datos de una web cada hora. A veces el sitio tarda más de lo normal y tu bot falla con timeout. ¿Cuál es la solución correcta?',
+     opts:['Aumentar el timeout a 24 horas para asegurar que siempre espere suficiente','Configurar timeout razonable (ej: 30 segundos) + reintento automático con backoff + alerta si falla 3 veces consecutivas','Eliminar el timeout para que el bot espere infinitamente','Acceder al sitio más rápido para no necesitar timeout'],
+     ans:1,
+     exp:'El patrón correcto: timeout razonable (define qué es "demasiado" para tu caso) + reintentos (generalmente 3) + backoff exponencial entre reintentos + alerta cuando se supera el umbral de fallos. Timeout infinito puede colgar el bot para siempre.'},
+    {q:'¿Cómo verificarías que un proceso de automatización que inserta 500 registros al día en una base de datos está funcionando correctamente en producción?',
+     opts:['Confiar en que si no hay quejas, todo está bien','Monitoreo activo: alertas si el volumen cae fuera del rango esperado (ej: menos de 400 o más de 600 registros/día), logs de cada inserción y dashboard de métricas del proceso','Revisar manualmente los 500 registros cada día','Preguntar al proveedor del sistema si todo está bien'],
+     ans:1,
+     exp:'El monitoreo por SLA (Service Level Agreement) interno es el estándar: define el rango esperado de operación normal, genera alertas automáticas al salirse del rango y mantén un dashboard de tendencias. Un proceso que "silenciosamente" procesa 50 en lugar de 500 es un fallo silencioso.'}
   ]
 };
 
@@ -1351,7 +1626,8 @@ const GUIDE_ITEMS=[
   {icon:'🎯',color:'#f3e8ff',name:'Test de Zavic (Valores)',type:'Valores',desc:'Evalúa valores personales y sociales: moral, legalidad, indiferencia y corrupción. Mide la orientación ética y hacia el logro del candidato.',tips:['Responde con coherencia ética; el test detecta inconsistencias.','Muestra orientación hacia el logro, la justicia y el trabajo bien hecho.','No respondas lo que crees que "quieren escuchar"; la autenticidad es clave.'],warn:'Usado para evaluar ética profesional en cargos con responsabilidad.'},
   {icon:'📊',color:'#ecfdf5',name:'Wonderlic / BARSIT',type:'Cognitiva',desc:'Prueba rápida de aptitud mental general (comprensión lógica, velocidad mental). Muy usada en procesos de selección masivos.',tips:['Son pruebas con tiempo muy limitado (12-15 min para 50 preguntas).','No te detengas demasiado en una pregunta; avanza y regresa si hay tiempo.','Practica aritmética mental, analogías y series para mejorar velocidad.'],warn:'El tiempo es el principal desafío. La práctica sistemática mejora el puntaje.'},
   {icon:'🔧',color:'#fff1f2',name:'Bennett (BMCT) - Razonamiento Mecánico',type:'Técnica',desc:'Evalúa comprensión de principios físicos y mecánicos. Clave para ingenieros eléctricos, electrónicos y de mantenimiento.',tips:['Repasa conceptos de física: palancas, poleas, engranajes, presión, corriente.','Las imágenes muestran situaciones físicas; piensa "¿qué pasaría si...?"','Practica con problemas de mecánica y física básica.'],warn:'Muy específica para ingeniería mecánica, eléctrica e industrial.'},
-  {icon:'👥',color:'#fffbeb',name:'Assessment Center',type:'Competencias',desc:'Simulación de situaciones laborales reales (estudios de caso, role-playing, presentaciones, trabajo en equipo) para evaluar competencias directamente en acción.',tips:['Participa activamente, propone y escucha en los ejercicios de grupo.','Muestra liderazgo sin autoritarismo; facilita la participación de todos.','En presentaciones: estructura clara, datos y conclusiones concretas.','Mantén la calma y muestra pensamiento analítico en los casos de negocio.'],warn:'Puede durar entre 4 horas y 2 días. Prepara ejemplos STAR de tu experiencia.'}
+  {icon:'👥',color:'#fffbeb',name:'Assessment Center',type:'Competencias',desc:'Simulación de situaciones laborales reales (estudios de caso, role-playing, presentaciones, trabajo en equipo) para evaluar competencias directamente en acción.',tips:['Participa activamente, propone y escucha en los ejercicios de grupo.','Muestra liderazgo sin autoritarismo; facilita la participación de todos.','En presentaciones: estructura clara, datos y conclusiones concretas.','Mantén la calma y muestra pensamiento analítico en los casos de negocio.'],warn:'Puede durar entre 4 horas y 2 días. Prepara ejemplos STAR de tu experiencia.'},
+  {icon:'🤖',color:'#e0f2fe',name:'Automatización e IA (Assessment Real)',type:'Técnica',desc:'Prueba práctica de 20 minutos con casos reales: extracción de documentos escaneados (OCR), clasificación de mensajes (NLP), automatización de facturas y arquitectura de bots tolerante a fallos.',tips:['OCR + Document AI: Azure Document Intelligence, Google Document AI y AWS Textract son los estándares del mercado — conoce al menos uno.','Para clasificar mensajes de WhatsApp sin reglas fijas, usa LLM con prompt de clasificación por intención.','Al cruzar datos de Excel grandes, Python + pandas con merge/lookup es el estándar — evita hacerlo manualmente.','En manejo de errores: el bot nunca detiene todo; registra la excepción, continúa y notifica solo lo que requiere acción humana.','Arquitectura escalable = batches + cola de mensajes + checkpoints de progreso + lógica de reintentos.'],warn:'Tiempo límite real: 20 minutos. Practica con la categoría "Automatización e IA" en PrepararMe hasta obtener puntaje >80%.'}
 ];
 
 function initGuide(){
@@ -2788,7 +3064,7 @@ function showCoordinatorAccess(){
   if(existing)existing.remove();
   const m=document.createElement('div');
   m.id='coord-access-modal';
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';m.setAttribute('data-pm-overlay','1');
   m.innerHTML=`<div style="background:white;border-radius:20px;padding:32px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:2.5rem">🎓</div>
@@ -2887,7 +3163,7 @@ function generarVersionEstudiantes(){
   }
   // Leer el HTML actual y reemplazar la URL vacía por la configurada
   const m=document.createElement('div');
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';m.setAttribute('data-pm-overlay','1');
   m.innerHTML=`<div style="background:white;border-radius:20px;padding:28px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center">
     <div style="font-size:2.8rem;margin-bottom:12px">📦</div>
     <div style="font-size:1.05rem;font-weight:800;margin-bottom:8px">Generar versión para estudiantes</div>
@@ -2908,7 +3184,7 @@ function generarVersionEstudiantes(){
 }
 
 function ejecutarDescargaEstudiantes(){
-  document.querySelectorAll('div[style*="rgba(0,0,0,0.6)"]').forEach(el=>el.remove());
+  document.querySelectorAll('[data-pm-overlay]').forEach(el=>el.remove());
   const url=GS.getUrl();
   // Obtener el HTML completo de la página actual
   const htmlCompleto=document.documentElement.outerHTML;
@@ -3122,7 +3398,7 @@ function renderCoordDashboard(pg,students){
 function showCambiarClave(){
   const m=document.createElement('div');
   m.id='cambiar-clave-modal';
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';m.setAttribute('data-pm-overlay','1');
   m.innerHTML=`<div style="background:white;border-radius:20px;padding:28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:2rem">🔑</div>
@@ -3565,7 +3841,7 @@ function showGSConfig(){
   const current=GS.getUrl();
   const m=document.createElement('div');
   m.id='gs-config-modal';
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto';m.setAttribute('data-pm-overlay','1');
   m.innerHTML=`<div style="background:white;border-radius:20px;padding:28px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:2.5rem">📤</div>
@@ -3639,7 +3915,7 @@ function showGSInstructions(){
   document.getElementById('gs-config-modal').remove();
   const m=document.createElement('div');
   m.id='gs-inst-modal';
-  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto';m.setAttribute('data-pm-overlay','1');
   m.innerHTML=`<div style="background:white;border-radius:20px;padding:28px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div style="font-size:1.05rem;font-weight:800">📤 Configurar destino de resultados</div>
