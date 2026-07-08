@@ -276,7 +276,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
       <div class="nav-item" onclick="showPage('tests')"><span class="icon">🧠</span> Pruebas Psicotécnicas</div>
       <div class="nav-item" onclick="showPage('interview')"><span class="icon">💬</span> Entrevistas</div>
       <div class="nav-item" onclick="showPage('resume')"><span class="icon">📄</span> Hoja de Vida</div>
@@ -316,7 +316,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <!-- DASHBOARD -->
-    <div class="page active" id="page-dashboard">
+    <div class="page" id="page-dashboard">
       <div class="cards-grid">
         <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">🧠</div><div class="stat-value" id="stat-tests">0</div><div class="stat-label">Pruebas Realizadas</div></div>
         <div class="stat-card"><div class="stat-icon" style="background:#d1fae5">💬</div><div class="stat-value" id="stat-interviews">0</div><div class="stat-label">Entrevistas Practicadas</div></div>
@@ -712,7 +712,16 @@ function handleRegister(){
   if(!/^\d{4}$/.test(pin)){showAuthError('El PIN debe ser exactamente 4 dígitos');return;}
   if(pin!==pin2){showAuthError('Los PIN no coinciden');return;}
   const users=DB.getUsers();
-  if(users.find(u=>u.name.toLowerCase()===name.toLowerCase())){showAuthError('Ya existe un estudiante con ese nombre');return;}
+  if(users.find(u=>u.name.toLowerCase()===name.toLowerCase())){
+    showAuthError('⚠️ Ya existe una cuenta con ese nombre. En 2 segundos te llevamos a Iniciar Sesión...');
+    setTimeout(()=>{
+      switchAuthTab('login');
+      document.getElementById('login-name').value=name;
+      document.getElementById('login-pin').focus();
+      hideAuthError();
+    },2000);
+    return;
+  }
   const user={id:'u_'+Date.now(),name,profession:prof,semestre:semestre||'',pin,createdAt:new Date().toISOString()};
   users.push(user);DB.saveUsers(users);DB.setSession(user.id);
   GS.register(user); // Sync to Google Sheets
@@ -3090,16 +3099,30 @@ function verifyCoordPassword(){
   const pw=document.getElementById('coord-pw-input').value;
   if(pw===getCoordPassword()){
     document.getElementById('coord-access-modal').remove();
-    // Si el usuario no está logueado, mostrar directamente el panel coordinador
-    // sin necesidad de registrarse como estudiante
-    const authScreen=document.getElementById('auth-screen');
-    const appScreen=document.getElementById('app-screen');
-    if(authScreen && authScreen.style.display!=='none'){
-      authScreen.style.display='none';
-      if(appScreen) appScreen.style.display='block';
+    // Ocultar login y mostrar app
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('app-screen').style.display='block';
+    // Inicializar categorías si aún no se hizo (para que el panel funcione completo)
+    if(!currentUser){
+      document.getElementById('user-avatar').textContent='C';
+      document.getElementById('sidebar-name').textContent='Coordinador';
+      document.getElementById('sidebar-prof').textContent='Universidad del Quindío';
+      // Inicializar módulos requeridos por el panel (sin datos de estudiante)
+      try{ initTestCategories(); }catch(e){}
+      try{ initInterviewCategories(); }catch(e){}
+      try{ initGuide(); }catch(e){}
     }
-    showPage('coordinator');
-    setTimeout(initGSBadge,200);
+    // Mostrar panel coordinador directamente — sin delay
+    // Remover activos anteriores y forzar coordinador
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const coordPage=document.getElementById('page-coordinator');
+    if(coordPage){
+      coordPage.classList.add('active');
+      document.getElementById('page-title').textContent='Panel Coordinador — CNA';
+      try{ renderCoordinatorPage(); }catch(e){ coordPage.innerHTML='<div style="padding:32px;text-align:center;color:#dc2626">Error al cargar el panel: '+e.message+'</div>'; }
+    }
+    initGSBadge();
   } else {
     document.getElementById('coord-pw-error').style.display='block';
     document.getElementById('coord-pw-input').value='';
@@ -3278,6 +3301,7 @@ function renderCoordDashboard(pg,students){
         </label>
         <button onclick="exportCoordToExcel()" style="background:#059669;color:white;border:none;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:700;cursor:pointer">📊 Exportar Excel</button>
         <button onclick="exportCNAReport()" style="background:white;color:#7c3aed;border:none;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:700;cursor:pointer">📄 Informe CNA</button>
+        <button onclick="showGestionUsuarios()" style="background:rgba(255,255,255,.15);color:white;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;padding:8px 14px;font-size:0.82rem;cursor:pointer">👥 Gestión usuarios</button>
         <button onclick="showCambiarClave()" style="background:rgba(255,255,255,.15);color:white;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;padding:8px 14px;font-size:0.82rem;cursor:pointer">🔑 Cambiar clave</button>
         <button onclick="showPage('dashboard')" style="background:rgba(255,255,255,.15);color:white;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 14px;font-size:0.82rem;cursor:pointer">← Salir</button>
       </div>
@@ -3392,6 +3416,110 @@ function renderCoordDashboard(pg,students){
       <div><strong>Período:</strong> ${today}</div>
     </div>
   </div>`;
+}
+
+// ── GESTIÓN DE USUARIOS (COORDINADOR) ─────────────────
+function showGestionUsuarios(){
+  const users=DB.getUsers();
+  const m=document.createElement('div');
+  m.id='gestion-usuarios-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  m.setAttribute('data-pm-overlay','1');
+  function renderTabla(){
+    const us=DB.getUsers();
+    return us.length===0
+      ?'<div style="text-align:center;padding:24px;color:#94a3b8;font-size:0.85rem">No hay estudiantes registrados en este dispositivo.</div>'
+      :`<table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <thead><tr style="background:#f8fafc">
+          <th style="padding:8px 10px;text-align:left;color:#475569;font-weight:700;border-bottom:2px solid #e2e8f0">Nombre</th>
+          <th style="padding:8px 10px;text-align:left;color:#475569;font-weight:700;border-bottom:2px solid #e2e8f0">Programa</th>
+          <th style="padding:8px 10px;text-align:center;color:#475569;font-weight:700;border-bottom:2px solid #e2e8f0">Sem.</th>
+          <th style="padding:8px 10px;text-align:center;color:#475569;font-weight:700;border-bottom:2px solid #e2e8f0">PIN</th>
+          <th style="padding:8px 10px;text-align:center;color:#475569;font-weight:700;border-bottom:2px solid #e2e8f0">Acciones</th>
+        </tr></thead>
+        <tbody>
+        ${us.map(u=>`<tr style="border-bottom:1px solid #f1f5f9" id="row-${u.id}">
+          <td style="padding:8px 10px;font-weight:600">${u.name}</td>
+          <td style="padding:8px 10px;color:#475569;font-size:0.78rem">${u.profession||'—'}</td>
+          <td style="padding:8px 10px;text-align:center;color:#475569">${u.semestre||'—'}</td>
+          <td style="padding:8px 10px;text-align:center">
+            <span id="pin-${u.id}" style="font-family:monospace;font-weight:700;color:#1d4ed8;letter-spacing:3px">••••</span>
+            <button onclick="togglePin('${u.id}','${u.pin}')" style="border:none;background:none;cursor:pointer;font-size:0.75rem;color:#7c3aed;margin-left:4px" title="Mostrar/ocultar PIN">👁</button>
+          </td>
+          <td style="padding:8px 10px;text-align:center;display:flex;gap:6px;justify-content:center">
+            <button onclick="resetPinModal('${u.id}','${u.name}')" style="background:#fef3c7;color:#d97706;border:1px solid #fcd34d;border-radius:6px;padding:4px 10px;font-size:0.75rem;font-weight:700;cursor:pointer">🔑 Reset PIN</button>
+            <button onclick="eliminarUsuario('${u.id}','${u.name}')" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;font-size:0.75rem;font-weight:700;cursor:pointer">🗑 Eliminar</button>
+          </td>
+        </tr>`).join('')}
+        </tbody></table>`;
+  }
+  m.innerHTML=`<div style="background:white;border-radius:20px;padding:28px;max-width:700px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div>
+        <div style="font-size:1.05rem;font-weight:800">👥 Gestión de Usuarios</div>
+        <div style="font-size:0.78rem;color:#64748b;margin-top:2px">Solo estudiantes registrados en este navegador/dispositivo</div>
+      </div>
+      <button onclick="document.getElementById('gestion-usuarios-modal').remove()" style="border:none;background:#f1f5f9;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.85rem">✕ Cerrar</button>
+    </div>
+    <div id="gu-tabla">${renderTabla()}</div>
+  </div>`;
+  document.body.appendChild(m);
+  // Exponer función de recarga
+  window._recargarGU=()=>{document.getElementById('gu-tabla').innerHTML=renderTabla();};
+}
+
+function togglePin(uid,pin){
+  const el=document.getElementById('pin-'+uid);
+  if(!el)return;
+  el.textContent=el.textContent.includes('•')?pin:'••••';
+}
+
+function resetPinModal(uid,nombre){
+  const rm=document.createElement('div');
+  rm.id='reset-pin-modal';
+  rm.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px';
+  rm.innerHTML=`<div style="background:white;border-radius:16px;padding:24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:2rem">🔑</div>
+      <div style="font-size:0.95rem;font-weight:800;margin-top:6px">Resetear PIN</div>
+      <div style="font-size:0.82rem;color:#64748b;margin-top:4px">Estudiante: <strong>${nombre}</strong></div>
+    </div>
+    <label style="font-size:0.82rem;font-weight:700;display:block;margin-bottom:6px">Nuevo PIN (4 dígitos)</label>
+    <input type="password" id="nuevo-pin-input" placeholder="••••" maxlength="4" inputmode="numeric"
+      style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:1rem;text-align:center;letter-spacing:6px;margin-bottom:14px">
+    <div id="rp-error" style="color:#dc2626;font-size:0.8rem;margin-bottom:10px;display:none;text-align:center"></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('reset-pin-modal').remove()" style="flex:1;border:1.5px solid #e2e8f0;background:none;border-radius:8px;padding:10px;cursor:pointer">Cancelar</button>
+      <button onclick="guardarNuevoPin('${uid}')" style="flex:2;background:#d97706;color:white;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer">💾 Guardar PIN</button>
+    </div>
+  </div>`;
+  document.body.appendChild(rm);
+  setTimeout(()=>document.getElementById('nuevo-pin-input').focus(),100);
+}
+
+function guardarNuevoPin(uid){
+  const pin=document.getElementById('nuevo-pin-input').value.trim();
+  const err=document.getElementById('rp-error');
+  if(!/^\d{4}$/.test(pin)){err.textContent='El PIN debe ser exactamente 4 dígitos numéricos';err.style.display='block';return;}
+  const users=DB.getUsers();
+  const idx=users.findIndex(u=>u.id===uid);
+  if(idx===-1){err.textContent='Usuario no encontrado';err.style.display='block';return;}
+  users[idx].pin=pin;
+  DB.saveUsers(users);
+  document.getElementById('reset-pin-modal').remove();
+  if(window._recargarGU)window._recargarGU();
+  showToast('✅ PIN actualizado correctamente');
+}
+
+function eliminarUsuario(uid,nombre){
+  if(!confirm(`¿Eliminar al estudiante "${nombre}" y todo su historial de este dispositivo?\n\nEsta acción no se puede deshacer.`))return;
+  const users=DB.getUsers().filter(u=>u.id!==uid);
+  DB.saveUsers(users);
+  // Eliminar historial del usuario
+  const hist=(DB.get('history')||[]).filter(h=>h.userId!==uid);
+  DB.set('history',hist);
+  if(window._recargarGU)window._recargarGU();
+  showToast('🗑 Estudiante eliminado');
 }
 
 // ── CAMBIAR CONTRASEÑA COORDINADOR ────────────────────
@@ -4938,8 +5066,12 @@ Proporciona tu análisis en el siguiente formato JSON exacto (sin markdown, solo
 // ═══════════════════════════════════════════════════════
 window.addEventListener('load',()=>{
   populateNameList();
-  const user=DB.getCurrentUser();
-  if(user)startApp(user);else document.getElementById('auth-screen').style.display='flex';
+  // Siempre mostrar la pantalla de login al abrir.
+  // Esto permite que el coordinador acceda directamente a su panel sin
+  // que una sesión de estudiante previa bloquee el acceso.
+  // Los estudiantes vuelven a ingresar con nombre (autocompletado) + PIN.
+  DB.clearSession();
+  document.getElementById('auth-screen').style.display='flex';
 });
 document.addEventListener('keypress',e=>{if(e.key==='Enter')handleLogin();});
 </script>
