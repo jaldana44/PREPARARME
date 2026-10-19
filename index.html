@@ -503,6 +503,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
+// Copia limpia de la pagina tomada ANTES de cargar datos (para 'Generar archivo')
+const PM_HTML_LIMPIO='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
 // ═══════════════════════════════════════════════════════
 // DATABASE
 // ═══════════════════════════════════════════════════════
@@ -3210,7 +3212,7 @@ function ejecutarDescargaEstudiantes(){
   document.querySelectorAll('[data-pm-overlay]').forEach(el=>el.remove());
   const url=GS.getUrl();
   // Obtener el HTML completo de la página actual
-  const htmlCompleto=document.documentElement.outerHTML;
+  const htmlCompleto=PM_HTML_LIMPIO;
   // Inyectar la URL como valor por defecto: buscar la KEY y pre-setearla
   // Lo hacemos agregando un script de inicialización al final del head
   const inject=`\n<script>
